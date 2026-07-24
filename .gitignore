@@ -1,0 +1,9 @@
+node_modules/
+
+# Built by `npm run build` and attached to the release, never committed.
+plugin.js
+
+*.tgz
+coverage/
+.vitest/
+.DS_Store

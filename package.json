@@ -1,0 +1,21 @@
+{
+    "name": "cardmirror-ebb-plugin",
+    "version": "0.1.0",
+    "private": true,
+    "description": "CardMirror plugin that sends extracted items into an ebb flow and searches back into it.",
+    "license": "MPL-2.0",
+    "author": "smodi",
+    "type": "module",
+    "scripts": {
+        "build": "esbuild src/main.ts --bundle --format=iife --target=es2020 --outfile=plugin.js",
+        "format": "oxfmt .",
+        "format:check": "oxfmt --check .",
+        "test": "vitest run",
+        "typecheck": "tsc --noEmit"
+    },
+    "devDependencies": {
+        "esbuild": "^0.28.1",
+        "typescript": "^5.9.3",
+        "vitest": "^4.1.10"
+    }
+}
