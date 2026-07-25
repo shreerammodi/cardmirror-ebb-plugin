@@ -4,7 +4,7 @@
     "private": true,
     "description": "CardMirror plugin that sends extracted items into an ebb flow and searches back into it.",
     "license": "MPL-2.0",
-    "author": "smodi",
+    "author": "shreerammodi",
     "type": "module",
     "scripts": {
         "build": "esbuild src/main.ts --bundle --format=iife --target=es2020 --outfile=plugin.js",

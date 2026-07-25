@@ -3,7 +3,7 @@
     "name": "ebb Flow Integration",
     "version": "0.1.0",
     "description": "Send extracted items into an ebb flow and search back to the cells they made.",
-    "author": "smodi",
+    "author": "shreerammodi",
     "apiVersion": 1,
     "minAppVersion": "0.1.0-beta.20"
 }
