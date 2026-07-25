@@ -1,7 +1,7 @@
 {
     "id": "cardmirror-ebb",
     "name": "ebb Flow Integration",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "description": "Send extracted items into an ebb flow and search back to the cells they made.",
     "author": "shreerammodi",
     "apiVersion": 1,
