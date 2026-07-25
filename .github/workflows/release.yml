@@ -19,6 +19,20 @@ jobs:
               with:
                   node-version: "22"
                   cache: npm
+            # CardMirror shows the manifest version and compares it against the
+            # latest release to offer an update, so a tag that disagrees with
+            # the manifest ships a plugin that misreports itself and never
+            # settles on "up to date".
+            - name: Tag matches the manifest version
+              run: |
+                  tag="${GITHUB_REF_NAME#v}"
+                  manifest=$(node -p "require('./cardmirror-plugin.json').version")
+                  pkg=$(node -p "require('./package.json').version")
+                  if [ "$tag" != "$manifest" ] || [ "$tag" != "$pkg" ]; then
+                    echo "tag $tag, manifest $manifest, package $pkg" >&2
+                    echo "::error::Tag, cardmirror-plugin.json and package.json must name the same version." >&2
+                    exit 1
+                  fi
             - run: npm ci
             - run: npm run typecheck
             - run: npm test
