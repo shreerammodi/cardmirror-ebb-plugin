@@ -20,8 +20,9 @@ describe("buildFlowPayload", () => {
             item("tag", "Perm Solves"),
             item("cite", "Smith 24"),
         ]);
-        expect(buildFlowPayload("column", extract)).toEqual({
+        expect(buildFlowPayload("column", extract, 2)).toEqual({
             mode: "column",
+            space: 2,
             docTitle: "AT - Cap K",
             items: [
                 {
@@ -48,7 +49,7 @@ describe("buildFlowPayload", () => {
 
     it("leaves the layout to ebb: cell mode still sends every item", () => {
         const extract = extracted([item("tag", "One"), item("analytic", "Two")]);
-        const payload = buildFlowPayload("cell", extract);
+        const payload = buildFlowPayload("cell", extract, 0);
         expect(payload.mode).toBe("cell");
         expect(payload.items.map((i) => i.text)).toEqual(["One", "Two"]);
     });

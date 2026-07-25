@@ -62,6 +62,7 @@ describe("sendToFlow", () => {
                 route: "/flow",
                 body: {
                     mode: "column",
+                    space: 0,
                     docTitle: "AT - Cap K",
                     items: [
                         {
@@ -87,6 +88,16 @@ describe("sendToFlow", () => {
             },
         ]);
         expect(fake.toasts).toEqual(["Sent 3 cells to 2AC."]);
+    });
+
+    it("carries the declared empty-cell count with the send", async () => {
+        const fake = makeApi({
+            extract: SELECTION,
+            post: WROTE_THREE,
+            settings: { "paste-space": 2 },
+        });
+        await run("cardmirror-ebb.sendToFlow", fake.api);
+        expect(fake.posts[0]?.body).toMatchObject({ space: 2 });
     });
 
     it("honours a stored cell mode", async () => {

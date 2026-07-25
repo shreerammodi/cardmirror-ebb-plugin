@@ -22,6 +22,8 @@ export interface FlowPayload {
     mode: SendMode;
     docTitle: string;
     items: FlowItem[];
+    /** Empty cells ebb leaves below the send. 0 leaves the run continuous. */
+    space: number;
 }
 
 export interface RevealPayload {
@@ -37,9 +39,14 @@ export function sourceKey(docId: string, text: string): string {
     return docId + "|" + text.toLowerCase();
 }
 
-export function buildFlowPayload(mode: SendMode, extract: ExtractResult): FlowPayload {
+export function buildFlowPayload(
+    mode: SendMode,
+    extract: ExtractResult,
+    space: number,
+): FlowPayload {
     return {
         mode,
+        space,
         docTitle: extract.docTitle,
         items: extract.items.map((item) => ({
             kind: item.kind,

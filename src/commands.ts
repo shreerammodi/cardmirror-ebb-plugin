@@ -14,7 +14,15 @@ import {
  * unloadable until the app restarts.
  */
 import { buildFlowPayload, buildRevealPayload, type SendMode } from "./payload.js";
-import { readMode, readTarget, nextTarget, toggleMode, TARGET_KEY } from "./settings.js";
+import {
+    readMode,
+    readSpace,
+    readTarget,
+    nextTarget,
+    SETTINGS,
+    toggleMode,
+    TARGET_KEY,
+} from "./settings.js";
 
 export const PLUGIN_ID = "cardmirror-ebb";
 export const PLUGIN_NAME = "ebb Flow Integration";
@@ -28,7 +36,11 @@ async function send(api: CardMirrorPluginApi, override: SendMode | null): Promis
         return;
     }
     const appId = readTarget(api.storage);
-    const payload = buildFlowPayload(override ?? readMode(api.storage), extract);
+    const payload = buildFlowPayload(
+        override ?? readMode(api.storage),
+        extract,
+        readSpace(api.settings),
+    );
     api.showToast(sendResultMessage(appId, await api.flowPost(appId, "/flow", payload)));
 }
 
@@ -58,6 +70,7 @@ export const definition: PluginDefinition = {
     id: PLUGIN_ID,
     name: PLUGIN_NAME,
     apiVersion: API_VERSION,
+    settings: SETTINGS,
     commands: [
         {
             id: "cardmirror-ebb.sendToFlow",

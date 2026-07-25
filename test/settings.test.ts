@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { nextTarget, readMode, readTarget, toggleMode } from "../src/settings.js";
+import { nextTarget, readMode, readSpace, readTarget, toggleMode } from "../src/settings.js";
 import { flowApp, makeApi } from "./fake-api.js";
 
 describe("readMode", () => {
@@ -24,6 +24,29 @@ describe("toggleMode", () => {
         expect(fake.stored("sendMode")).toBe("cell");
         expect(toggleMode(fake.api.storage)).toBe("column");
         expect(fake.stored("sendMode")).toBe("column");
+    });
+});
+
+describe("readSpace", () => {
+    const space = (settings: Record<string, unknown>) =>
+        readSpace(makeApi({ settings }).api.settings);
+
+    it("defaults to no empty cells", () => {
+        expect(readSpace(makeApi().api.settings)).toBe(0);
+    });
+
+    it("reads the declared count", () => {
+        expect(space({ "paste-space": 3 })).toBe(3);
+    });
+
+    it("limits the count to what ebb accepts and rounds a fraction", () => {
+        expect(space({ "paste-space": 99 })).toBe(10);
+        expect(space({ "paste-space": -3 })).toBe(0);
+        expect(space({ "paste-space": 1.6 })).toBe(2);
+    });
+
+    it("falls back to none when the stored value is not a number", () => {
+        expect(space({ "paste-space": "two" })).toBe(0);
     });
 });
 

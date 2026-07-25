@@ -4,6 +4,8 @@
  * would not survive persistence fails here too.
  */
 
+import { SETTINGS } from "../src/settings.js";
+
 export interface RecordedPost {
     appId: string;
     route: string;
@@ -23,6 +25,8 @@ export interface FakeOptions {
     post?: FlowPostResult | ((route: string) => FlowPostResult);
     apps?: FlowAppInfo[];
     stored?: Record<string, unknown>;
+    /** Values of the declared settings, as the settings modal would store them. */
+    settings?: Record<string, unknown>;
     appVersion?: string;
 }
 
@@ -47,6 +51,19 @@ export function makeApi(options: FakeOptions = {}): FakeApi {
         docInfo: () => null,
         showToast: (message) => {
             toasts.push(message);
+        },
+        settings: {
+            // Mirrors the host: an undeclared key reads undefined, and a
+            // stored value of the wrong type degrades to the declared default.
+            get: (key) => {
+                const def = SETTINGS.find((d) => d.key === key);
+                if (!def) return undefined;
+                const raw = (options.settings ?? {})[key];
+                return typeof raw === typeof def.default
+                    ? (raw as PluginSettingValue)
+                    : def.default;
+            },
+            onChanged: () => () => {},
         },
         storage: {
             get: (key) => (JSON.parse(bag) as Record<string, unknown>)[key],

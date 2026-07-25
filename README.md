@@ -14,7 +14,8 @@ per-session token that neither the plugin nor the ebb renderer ever sees.
 
 ## Requirements
 
-- CardMirror `0.1.0-beta.20` or newer (the plugin API v1 host).
+- CardMirror `0.1.0-beta.22` or newer (the plugin API v1 host, from the
+  release that renders plugin settings).
 - An ebb build carrying the CardMirror bridge. It landed after `0.6.1`, so
   any release newer than that registers ebb as a flow app and serves the
   bridge routes.
@@ -57,8 +58,21 @@ from the command palette.
 | Choose Flow App for ebb Commands      | none        | Cycles the target flow app. Defaults to `ebb`.                                           |
 
 The send mode and the target app persist in CardMirror's per-plugin
-storage. A plugin gets no settings panel in v1, so those two commands are
-the settings.
+storage, and both are driven by the commands above rather than by a
+control.
+
+## Settings
+
+While the plugin is enabled, its row in Settings, then Plugins carries a
+gear:
+
+| Setting                  | Default | What it does                                                                                                |
+| ------------------------ | ------- | ----------------------------------------------------------------------------------------------------------- |
+| Empty cells after a send | `0`     | Blank cells the flow app leaves below each send, so one send reads as separate from the next. Capped at 10. |
+
+The count rides on every send, so the spacing is decided here rather than
+in the flow app. An ebb old enough to predate the `space` field ignores
+it and writes no empty cells.
 
 Layout, when ebb writes a column:
 
@@ -78,10 +92,12 @@ reads those files, so the plugin only ever names an app id.
 
 Two routes carry everything:
 
-- `POST /flow` with `{ mode, docTitle, items }`. Each item is one
+- `POST /flow` with `{ mode, docTitle, items, space }`. Each item is one
   extracted item, verbatim: its `kind`, its whitespace-collapsed `text`,
-  the opaque CardMirror `source` token, and a `key`. ebb answers with the
-  sheet it wrote to and how many cells it filled. The plugin sends items
+  the opaque CardMirror `source` token, and a `key`. `space` is the
+  Empty cells setting, which ebb clamps again on arrival and does not
+  count among the cells it reports. ebb answers with the sheet it wrote
+  to and how many cells it filled. The plugin sends items
   in document order and leaves the layout above to ebb, so any other
   editor speaking this bridge lands the same way.
 - `POST /reveal` with `{ keys, docTitle }`. ebb answers with how many

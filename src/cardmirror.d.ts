@@ -58,7 +58,29 @@ type FlowPostResult =
 
 interface PluginStorage {
     get(key: string): unknown;
+    /** `__settings` is reserved for declared-setting values. */
     set(key: string, value: unknown): void;
+}
+
+type PluginSettingValue = boolean | string | number;
+
+interface PluginSettingDef {
+    key: string;
+    label: string;
+    type: "boolean" | "text" | "number" | "select";
+    /** Must match `type`; for `select`, must be one of `options`. */
+    default: PluginSettingValue;
+    /** Required for `select` (the choices), forbidden otherwise. */
+    options?: readonly string[];
+    /** Muted helper line rendered under the control. */
+    description?: string;
+}
+
+interface PluginSettingsApi {
+    /** The stored value, the declared default when it is missing or
+     *  off-type, and undefined for an undeclared key. */
+    get(key: string): PluginSettingValue | undefined;
+    onChanged(cb: (key: string, value: PluginSettingValue) => void): () => void;
 }
 
 interface CardMirrorPluginApi {
@@ -70,6 +92,7 @@ interface CardMirrorPluginApi {
     docInfo(): { docId: string; docTitle: string } | null;
     showToast(message: string): void;
     storage: PluginStorage;
+    settings: PluginSettingsApi;
 }
 
 interface PluginCommandDef {
@@ -86,6 +109,7 @@ interface PluginDefinition {
     name: string;
     apiVersion: number;
     commands: PluginCommandDef[];
+    settings?: PluginSettingDef[];
 }
 
 interface Window {
