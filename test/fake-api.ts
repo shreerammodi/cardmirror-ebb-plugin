@@ -33,7 +33,9 @@ export interface FakeOptions {
 export function makeApi(options: FakeOptions = {}): FakeApi {
     const toasts: string[] = [];
     const posts: RecordedPost[] = [];
-    let bag = JSON.stringify(options.stored ?? {});
+    // Setting values live in the storage bag under the host's reserved key,
+    // so a value the plugin writes there is one the settings api reads back.
+    let bag = JSON.stringify({ ...options.stored, __settings: options.settings ?? {} });
     const post = options.post ?? { ok: false as const, error: "unsupported" as const };
     const extract: ExtractResult | ExtractError = options.extract ?? {
         ok: false,
@@ -58,7 +60,8 @@ export function makeApi(options: FakeOptions = {}): FakeApi {
             get: (key) => {
                 const def = SETTINGS.find((d) => d.key === key);
                 if (!def) return undefined;
-                const raw = (options.settings ?? {})[key];
+                const values = (JSON.parse(bag) as Record<string, unknown>)["__settings"];
+                const raw = (values as Record<string, unknown> | undefined)?.[key];
                 return typeof raw === typeof def.default
                     ? (raw as PluginSettingValue)
                     : def.default;

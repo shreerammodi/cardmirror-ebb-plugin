@@ -1,11 +1,11 @@
 /**
  * What this plugin remembers between invocations, and the flow app cycle.
  *
- * The send mode and target app are driven by commands and kept in
- * `api.storage`, which is synchronous and JSON only. The paste space is a
- * declared setting instead: CardMirror renders its control on the plugin's
- * Settings row, and the value rides on each send rather than living in ebb,
- * so the editor that decides the spacing is the one the user is typing in.
+ * The target app is driven by a command and kept in `api.storage`, which is
+ * synchronous and JSON only. The send mode and the paste space are declared
+ * settings, so CardMirror renders their controls on the plugin's Settings
+ * row. The space rides on each send rather than living in ebb, so the editor
+ * that decides the spacing is the one the user is typing in.
  */
 import type { SendMode } from "./payload.js";
 
@@ -14,11 +14,32 @@ export const TARGET_KEY = "targetApp";
 export const DEFAULT_MODE: SendMode = "column";
 export const DEFAULT_TARGET = "ebb";
 
+/** A select stores the option text itself, so these strings are both the
+ *  labels in the modal and the stored values. */
+export const MODE_LABELS: Record<SendMode, string> = {
+    column: "One cell per line",
+    cell: "Everything in one cell",
+};
+
 export const SPACE_KEY = "paste-space";
 /** ebb refuses more than this, so the plugin never sends more. */
 const SPACE_MAX = 10;
 
+/** Where the host keeps declared-setting values inside the plugin's own
+ *  storage bag. The host only reads settings, so writing this key is how
+ *  the toggle command moves the same value the modal shows. */
+const SETTINGS_BAG_KEY = "__settings";
+
 export const SETTINGS: PluginSettingDef[] = [
+    {
+        key: MODE_KEY,
+        label: "Send mode",
+        type: "select",
+        options: [MODE_LABELS.column, MODE_LABELS.cell],
+        default: MODE_LABELS.column,
+        description:
+            "How Send to Flow (ebb) lays out what it sends. The two mode-specific send commands ignore this.",
+    },
     {
         key: SPACE_KEY,
         label: "Empty cells after a send",
@@ -36,13 +57,16 @@ export function readSpace(settings: PluginSettingsApi): number {
     return Math.min(SPACE_MAX, Math.max(0, Math.round(value)));
 }
 
-export function readMode(storage: PluginStorage): SendMode {
-    return storage.get(MODE_KEY) === "cell" ? "cell" : DEFAULT_MODE;
+export function readMode(settings: PluginSettingsApi): SendMode {
+    return settings.get(MODE_KEY) === MODE_LABELS.cell ? "cell" : DEFAULT_MODE;
 }
 
-export function toggleMode(storage: PluginStorage): SendMode {
-    const next: SendMode = readMode(storage) === "column" ? "cell" : "column";
-    storage.set(MODE_KEY, next);
+/** Flips the declared setting, leaving every other setting value alone. */
+export function toggleMode(api: CardMirrorPluginApi): SendMode {
+    const next: SendMode = readMode(api.settings) === "column" ? "cell" : "column";
+    const bag = api.storage.get(SETTINGS_BAG_KEY);
+    const values = bag !== null && typeof bag === "object" && !Array.isArray(bag) ? bag : {};
+    api.storage.set(SETTINGS_BAG_KEY, { ...values, [MODE_KEY]: MODE_LABELS[next] });
     return next;
 }
 

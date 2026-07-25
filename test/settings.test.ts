@@ -1,29 +1,46 @@
 import { describe, expect, it } from "vitest";
 
-import { nextTarget, readMode, readSpace, readTarget, toggleMode } from "../src/settings.js";
+import {
+    MODE_LABELS,
+    nextTarget,
+    readMode,
+    readSpace,
+    readTarget,
+    toggleMode,
+} from "../src/settings.js";
 import { flowApp, makeApi } from "./fake-api.js";
 
 describe("readMode", () => {
     it("defaults to column with nothing stored", () => {
-        expect(readMode(makeApi().api.storage)).toBe("column");
+        expect(readMode(makeApi().api.settings)).toBe("column");
     });
 
     it("ignores a stored value that is not a mode", () => {
-        expect(readMode(makeApi({ stored: { sendMode: "sideways" } }).api.storage)).toBe("column");
+        expect(readMode(makeApi({ settings: { sendMode: "sideways" } }).api.settings)).toBe(
+            "column",
+        );
     });
 
-    it("reads a stored cell mode", () => {
-        expect(readMode(makeApi({ stored: { sendMode: "cell" } }).api.storage)).toBe("cell");
+    it("reads the declared cell mode", () => {
+        expect(readMode(makeApi({ settings: { sendMode: MODE_LABELS.cell } }).api.settings)).toBe(
+            "cell",
+        );
     });
 });
 
 describe("toggleMode", () => {
-    it("flips and persists", () => {
+    it("flips the setting the modal shows", () => {
         const fake = makeApi();
-        expect(toggleMode(fake.api.storage)).toBe("cell");
-        expect(fake.stored("sendMode")).toBe("cell");
-        expect(toggleMode(fake.api.storage)).toBe("column");
-        expect(fake.stored("sendMode")).toBe("column");
+        expect(toggleMode(fake.api)).toBe("cell");
+        expect(fake.api.settings.get("sendMode")).toBe(MODE_LABELS.cell);
+        expect(toggleMode(fake.api)).toBe("column");
+        expect(fake.api.settings.get("sendMode")).toBe(MODE_LABELS.column);
+    });
+
+    it("leaves the other settings alone", () => {
+        const fake = makeApi({ settings: { "paste-space": 3 } });
+        toggleMode(fake.api);
+        expect(fake.api.settings.get("paste-space")).toBe(3);
     });
 });
 

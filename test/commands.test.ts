@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { definition, PLUGIN_ID } from "../src/commands.js";
+import { MODE_LABELS } from "../src/settings.js";
 import { extracted, flowApp, item, makeApi, runCommand } from "./fake-api.js";
 
 const SELECTION = extracted([
@@ -100,11 +101,11 @@ describe("sendToFlow", () => {
         expect(fake.posts[0]?.body).toMatchObject({ space: 2 });
     });
 
-    it("honours a stored cell mode", async () => {
+    it("honours a declared cell mode", async () => {
         const fake = makeApi({
             extract: SELECTION,
             post: WROTE_THREE,
-            stored: { sendMode: "cell" },
+            settings: { sendMode: MODE_LABELS.cell },
         });
         await run("cardmirror-ebb.sendToFlow", fake.api);
         expect(fake.posts[0]?.body).toMatchObject({ mode: "cell" });
@@ -163,33 +164,33 @@ describe("sendToFlow", () => {
 });
 
 describe("the explicit mode commands", () => {
-    it("sends one cell per line without disturbing a stored cell default", async () => {
+    it("sends one cell per line without disturbing a declared cell default", async () => {
         const fake = makeApi({
             extract: SELECTION,
             post: WROTE_THREE,
-            stored: { sendMode: "cell" },
+            settings: { sendMode: MODE_LABELS.cell },
         });
         await run("cardmirror-ebb.sendToFlowColumn", fake.api);
         expect(fake.posts[0]?.body).toMatchObject({ mode: "column" });
-        expect(fake.stored("sendMode")).toBe("cell");
+        expect(fake.api.settings.get("sendMode")).toBe(MODE_LABELS.cell);
     });
 
     it("sends a single cell without disturbing the column default", async () => {
         const fake = makeApi({ extract: SELECTION, post: WROTE_THREE });
         await run("cardmirror-ebb.sendToFlowCell", fake.api);
         expect(fake.posts[0]?.body).toMatchObject({ mode: "cell" });
-        expect(fake.stored("sendMode")).toBeUndefined();
+        expect(fake.api.settings.get("sendMode")).toBe(MODE_LABELS.column);
     });
 });
 
 describe("toggleSendMode", () => {
-    it("flips the stored default and says which mode is live", async () => {
+    it("flips the declared default and says which mode is live", async () => {
         const fake = makeApi();
         await run("cardmirror-ebb.toggleSendMode", fake.api);
-        expect(fake.stored("sendMode")).toBe("cell");
+        expect(fake.api.settings.get("sendMode")).toBe(MODE_LABELS.cell);
         expect(fake.toasts).toEqual(["ebb send mode: everything in one cell."]);
         await run("cardmirror-ebb.toggleSendMode", fake.api);
-        expect(fake.stored("sendMode")).toBe("column");
+        expect(fake.api.settings.get("sendMode")).toBe(MODE_LABELS.column);
         expect(fake.toasts[1]).toBe("ebb send mode: one cell per line.");
     });
 

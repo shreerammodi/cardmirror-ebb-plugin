@@ -37,7 +37,7 @@ async function send(api: CardMirrorPluginApi, override: SendMode | null): Promis
     }
     const appId = readTarget(api.storage);
     const payload = buildFlowPayload(
-        override ?? readMode(api.storage),
+        override ?? readMode(api.settings),
         extract,
         readSpace(api.settings),
     );
@@ -99,7 +99,7 @@ export const definition: PluginDefinition = {
             keywords: ["ebb", "flow", "mode", "toggle"],
             defaultKey: null,
             run: (api) => {
-                api.showToast(MODE_MESSAGES[toggleMode(api.storage)]);
+                api.showToast(MODE_MESSAGES[toggleMode(api)]);
             },
         },
         {

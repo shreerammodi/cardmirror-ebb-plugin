@@ -51,24 +51,25 @@ from the command palette.
 | Command                               | Default key | What it does                                                                             |
 | ------------------------------------- | ----------- | ---------------------------------------------------------------------------------------- |
 | Send to Flow (ebb)                    | `Mod-Alt-f` | Sends the extracted items in the current send mode.                                      |
-| Send to Flow (ebb, one cell per line) | none        | Sends one cell per item, whatever the stored mode is.                                    |
-| Send to Flow (ebb, single cell)       | none        | Sends everything as one cell, whatever the stored mode is.                               |
-| Toggle ebb Send Mode                  | none        | Flips the stored default between the two and toasts the new one.                         |
+| Send to Flow (ebb, one cell per line) | none        | Sends one cell per item, whatever the Send mode setting is.                              |
+| Send to Flow (ebb, single cell)       | none        | Sends everything as one cell, whatever the Send mode setting is.                         |
+| Toggle ebb Send Mode                  | none        | Flips the Send mode setting between the two and toasts the new one.                      |
 | Reveal in Flow (ebb)                  | `Mod-Alt-e` | Selects a cell in ebb that came from this passage. Run it again to walk to the next one. |
 | Choose Flow App for ebb Commands      | none        | Cycles the target flow app. Defaults to `ebb`.                                           |
 
-The send mode and the target app persist in CardMirror's per-plugin
-storage, and both are driven by the commands above rather than by a
-control.
+The target app persists in CardMirror's per-plugin storage, and the
+command above is the only way to change it. The send mode is a setting,
+so the toggle command and the control below move the same value.
 
 ## Settings
 
 While the plugin is enabled, its row in Settings, then Plugins carries a
 gear:
 
-| Setting                  | Default | What it does                                                                                                |
-| ------------------------ | ------- | ----------------------------------------------------------------------------------------------------------- |
-| Empty cells after a send | `0`     | Blank cells the flow app leaves below each send, so one send reads as separate from the next. Capped at 10. |
+| Setting                  | Default             | What it does                                                                                                |
+| ------------------------ | ------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Send mode                | `One cell per line` | Which layout "Send to Flow (ebb)" uses. The two mode-specific send commands ignore it.                      |
+| Empty cells after a send | `0`                 | Blank cells the flow app leaves below each send, so one send reads as separate from the next. Capped at 10. |
 
 The count rides on every send, so the spacing is decided here rather than
 in the flow app. An ebb old enough to predate the `space` field ignores
